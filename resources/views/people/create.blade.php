@@ -4,14 +4,15 @@
 @section('page_title', 'Nova pessoa')
 
 @section('header_actions')
-  <a href="{{ route('people.index') }}" class="rounded-xl border border-slate-700 px-4 py-2 hover:bg-slate-900">
+  <a href="{{ route('people.index') }}"
+     class="rounded-xl border border-slate-200 px-4 py-2 text-slate-700 hover:bg-slate-100">
     Voltar
   </a>
 @endsection
 
 @section('content')
   @if($errors->any())
-    <div class="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-200">
+    <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
       <ul class="list-disc pl-5">
         @foreach($errors->all() as $e) <li>{{ $e }}</li> @endforeach
       </ul>
@@ -23,23 +24,27 @@
 
     <div class="grid gap-4 md:grid-cols-2">
       <div>
-        <label class="mb-1 block text-sm font-semibold text-slate-300">Nome</label>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Nome</label>
         <input name="name" value="{{ old('name') }}"
-               class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:ring-4 focus:ring-blue-500/15">
+               class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400"
+               placeholder="Ex.: Maria Silva">
       </div>
 
       <div>
-        <label class="mb-1 block text-sm font-semibold text-slate-300">Email</label>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Email</label>
         <input name="email" value="{{ old('email') }}"
-               class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:ring-4 focus:ring-blue-500/15">
+               class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400"
+               placeholder="maria@exemplo.com">
       </div>
     </div>
 
     <div class="flex gap-2">
-      <button class="rounded-xl bg-blue-500 px-5 py-3 font-semibold text-slate-950 hover:brightness-110" type="submit">
+      <button type="submit"
+              class="rounded-xl bg-blue-600 px-5 py-3 text-white font-semibold hover:bg-blue-700">
         Salvar
       </button>
-      <a class="rounded-xl border border-slate-700 px-5 py-3 hover:bg-slate-900" href="{{ route('people.index') }}">
+      <a href="{{ route('people.index') }}"
+         class="rounded-xl border border-slate-200 px-5 py-3 text-slate-700 hover:bg-slate-100">
         Cancelar
       </a>
     </div>
