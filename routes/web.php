@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PersonController;
 
-Route::get('/', function () {
-    return 'API rodando. Use /api/people';
-});
+Route::resource('people', PersonController::class);

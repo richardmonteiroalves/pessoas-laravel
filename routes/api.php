@@ -1,5 +1,5 @@
 <?php
-use App\Http\Controllers\Api\PersonController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\PersonController;
 
-Route::apiResource('people', PersonController::class);
+Route::name('api.')->apiResource('people', PersonController::class);

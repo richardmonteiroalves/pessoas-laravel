@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Person;
 use Illuminate\Http\Request;
 
@@ -10,7 +9,13 @@ class PersonController extends Controller
 {
     public function index()
     {
-        return Person::query()->orderBy('id')->get();
+        $people = Person::query()->orderBy('id')->get();
+        return view('people.index', compact('people'));
+    }
+
+    public function create()
+    {
+        return view('people.create');
     }
 
     public function store(Request $request)
@@ -20,13 +25,14 @@ class PersonController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:people,email'],
         ]);
 
-        $person = Person::create($data);
-        return response()->json($person, 201);
+        Person::create($data);
+
+        return redirect()->route('people.index')->with('ok', 'Pessoa criada com sucesso.');
     }
 
-    public function show(Person $person)
+    public function edit(Person $person)
     {
-        return $person;
+        return view('people.edit', compact('person'));
     }
 
     public function update(Request $request, Person $person)
@@ -37,14 +43,13 @@ class PersonController extends Controller
         ]);
 
         $person->update($data);
-        return $person;
+
+        return redirect()->route('people.index')->with('ok', 'Pessoa atualizada com sucesso.');
     }
 
     public function destroy(Person $person)
     {
         $person->delete();
-        return response()->noContent();
+        return redirect()->route('people.index')->with('ok', 'Pessoa removida com sucesso.');
     }
-
-
 }

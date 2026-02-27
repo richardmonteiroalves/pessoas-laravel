@@ -7,53 +7,253 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+# pessoas-laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+API de exemplo em **Laravel v12.53.0** (PHP ^8.2), com **CRUD de Pessoas** usando **SQLite** e **migrations/seeders**.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+> Projeto baseado no skeleton do Laravel (`laravel/laravel`).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## O que este projeto faz
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Persiste dados em **SQLite** (arquivo local: `database/database.sqlite`)
+- ExpÃµe endpoints REST em `/api/people` para **Criar / Listar / Buscar / Atualizar / Excluir** registros da tabela `people`
+- Inclui **migrations** e **seeders** para montar o banco e popular com dados fake
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## DependÃªncias (bibliotecas) usadas
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### PHP / Composer (runtime)
+De `composer.json`:
 
-### Premium Partners
+- `laravel/framework` `v12.53.0` â€” framework web e componentes (routing, middleware, Eloquent ORM, migrations, validaÃ§Ã£o, etc.).
+- `laravel/tinker` `v2.11.1` â€” REPL/console interativo para testar cÃ³digo com o app carregado.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### PHP / Composer (dev)
+- `fakerphp/faker` `v1.24.1` â€” dados fake (usado nas factories).
+- `phpunit/phpunit` `11.5.55` â€” testes.
+- `nunomaduro/collision` `v8.9.1` â€” melhor output de erros no terminal.
+- `mockery/mockery` `1.6.12` â€” mocks para testes.
+- `laravel/pint` `v1.27.1` â€” formatador de cÃ³digo.
+- `laravel/pail` `v1.2.6` â€” utilitÃ¡rios para logs.
+- `laravel/sail` `v1.53.0` â€” ambiente Docker (opcional).
 
-## Contributing
+> ObservaÃ§Ã£o: alÃ©m dessas, o `composer.lock` inclui dependÃªncias transitivas (Symfony components, PSR, etc.). Para listar tudo: `composer show`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Front-end (Node / Vite) â€” opcional
+De `package.json` (devDependencies):
 
-## Code of Conduct
+- `vite` `^7.0.7` e `laravel-vite-plugin` `^2.0.0` â€” build/dev server de assets.
+- `tailwindcss` `^4.0.0` e `@tailwindcss/vite` `^4.0.0` â€” CSS utilitÃ¡rio.
+- `axios` `^1.11.0` â€” HTTP client (se vocÃª fizer telas/JS).
+- `concurrently` `^9.0.1` â€” roda comandos juntos (dev).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Banco de dados (SQLite)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Config em `.env`:
 
-## License
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+O arquivo do banco fica em:
+
+- `database/database.sqlite`
+
+Migrations existentes:
+
+- `create_users_table`
+- `create_cache_table`
+- `create_jobs_table`
+- `create_people_table` (**people**: `id`, `name`, `created_at`, `updated_at`)
+
+Seeders/factories:
+
+- `PersonFactory` â†’ gera `name`
+- `PersonSeeder` â†’ cria 20 pessoas (`Person::factory()->count(20)->create()`)
+- `DatabaseSeeder` â†’ chama `PersonSeeder`
+
+---
+
+## Finalidade e desenho do CRUD (endpoints)
+
+As rotas foram definidas com:
+
+```php
+<?php
+use App\Http\Controllers\Api\PersonController;
+use Illuminate\Support\Facades\Route;
+
+Route::apiResource('people', PersonController::class);
+```
+
+`Route::apiResource` cria os endpoints REST padrÃ£o de um CRUD (ver tabela oficial de Resource Controllers).  
+ReferÃªncia: documentaÃ§Ã£o do Laravel. https://laravel.com/docs/12.x/controllers#actions-handled-by-resource-controllers
+
+### Endpoints expostos
+
+| MÃ©todo | URL | AÃ§Ã£o (Controller) | O que faz |
+|---|---|---|---|
+| GET | `/api/people` | `index` | Lista pessoas |
+| POST | `/api/people` | `store` | Cria pessoa |
+| GET | `/api/people/{id}` | `show` | Busca por id |
+| PUT/PATCH | `/api/people/{id}` | `update` | Atualiza pessoa |
+| DELETE | `/api/people/{id}` | `destroy` | Exclui pessoa |
+
+> ObservaÃ§Ã£o do cÃ³digo atual: `store` e `update` validam apenas o campo `name`.  
+> Se vocÃª quiser incluir `email`, precisa adicionar coluna na migration e validar no controller.
+
+---
+
+## Exemplos de comandos (GET/POST/PUT/DELETE)
+
+### Listar (GET)
+```bash
+curl http://127.0.0.1:8000/api/people
+```
+
+### Buscar por ID (GET)
+```bash
+curl http://127.0.0.1:8000/api/people/1
+```
+
+### Criar (POST)
+
+**PowerShell**
+```powershell
+curl -Method POST "http://127.0.0.1:8000/api/people" `
+  -Headers @{ "Content-Type"="application/json" } `
+  -Body '{"name":"Richard"}'
+```
+
+**CMD**
+```bat
+curl -X POST "http://127.0.0.1:8000/api/people" ^
+  -H "Content-Type: application/json" ^
+  -d "{\"name\":\"Richard\"}"
+```
+
+### Atualizar (PUT)
+
+**PowerShell**
+```powershell
+curl -Method PUT "http://127.0.0.1:8000/api/people/1" `
+  -Headers @{ "Content-Type"="application/json" } `
+  -Body '{"name":"Novo Nome"}'
+```
+
+**CMD**
+```bat
+curl -X PUT "http://127.0.0.1:8000/api/people/1" ^
+  -H "Content-Type: application/json" ^
+  -d "{\"name\":\"Novo Nome\"}"
+```
+
+### Excluir (DELETE)
+```bash
+curl -X DELETE http://127.0.0.1:8000/api/people/1
+```
+
+---
+
+## Como executar localmente (Windows)
+
+### Requisitos
+- PHP **8.2+**
+- Composer
+- (Opcional) Node.js + npm (se for mexer em front-end/assets)
+
+### 1) Entrar na pasta do projeto
+
+**CMD**
+```bat
+cd /d C:\scripts\pessoas-laravel
+```
+
+**PowerShell**
+```powershell
+cd C:\scripts\pessoas-laravel
+```
+
+### 2) Instalar dependÃªncias PHP
+```bash
+composer install
+```
+
+### 3) Preparar o `.env` e gerar chave
+```bash
+copy .env.example .env
+php artisan key:generate
+```
+
+### 4) Garantir que o SQLite existe
+
+**PowerShell**
+```powershell
+New-Item -ItemType File -Force .\database\database.sqlite
+```
+
+**CMD**
+```bat
+type nul > database\database.sqlite
+```
+
+### 5) Rodar migrations + seed
+```bash
+php artisan migrate --seed
+```
+
+### 6) Subir o servidor
+```bash
+php artisan serve
+```
+
+Acessos:
+- Home simples (web): `http://127.0.0.1:8000/`
+- CRUD API: `http://127.0.0.1:8000/api/people`
+
+### Comandos Ãºteis
+- Ver rotas:
+  ```bash
+  php artisan route:list
+  ```
+- Limpar caches:
+  ```bash
+  php artisan optimize:clear
+  ```
+- Reset do banco (apaga tudo e recria):
+  ```bash
+  php artisan migrate:fresh --seed
+  ```
+
+---
+
+## Nota para Git (recomendado)
+- **NÃ£o versionar** `.env` (use `.env.example`).
+- **NÃ£o versionar** `vendor/` (rodar `composer install`).
+- Para SQLite, normalmente **nÃ£o versionar** `database/database.sqlite` (Ã© arquivo local).
+
+SugestÃ£o de `.gitignore` (acrÃ©scimos comuns):
+```
+/vendor
+/.env
+/database/*.sqlite
+/database/*.sqlite-*
+/node_modules
+/public/hot
+/storage/*.key
+```
+
+---
+
+## ReferÃªncias oficiais (Laravel)
+- Routing: https://laravel.com/docs/12.x/routing  
+- Controllers / `apiResource`: https://laravel.com/docs/12.x/controllers#api-resource-routes  
+- Migrations: https://laravel.com/docs/12.x/migrations  
+- Seeding: https://laravel.com/docs/12.x/seeding  
+- Factories: https://laravel.com/docs/12.x/eloquent-factories
